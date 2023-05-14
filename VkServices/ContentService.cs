@@ -497,19 +497,23 @@ namespace VkServices
             IEnumerable<Armor> armors = db.ArmorRepository.Get();
             StringBuilder result = new StringBuilder($"GOLD: {goldCount.ToString()}\n----\n");
             result.Append("Оружие\n");
+            int i = 1;
             foreach (var item in weapons)
             {
-                result.Append($"{item.name}: +{item.damage} - {item.cost}G \n");
+                result.Append($"{i} {item.name}: +{item.damage} - {item.cost}G \n");
+                i++;
             }
 
             result.Append("----\n");
             result.Append("Броня\n");
+            i = 1;
             foreach (var item in armors)
             {
-                result.Append($"{item.name}: +{item.protect} - {item.cost}G \n");
+                result.Append($"{i} {item.name}: +{item.protect} - {item.cost}G \n");
+                i++;
             }
 
-            result.Append($"----\nДля покупки: .Купить Б 2");
+            result.Append($"----\nДля покупки: Купить б 2");
             return result.ToString();
         }
 
@@ -518,16 +522,26 @@ namespace VkServices
             GameStat _gs = db.GameStatRepository.GetByID(message.from_id);
             Weapon weapons;
             Armor armors;
-            int index = (int)message.text[10] - 48;
+            string[] Params;
+            try
+            {
+                 Params = message.text.Split(' ', 3);
+            }
+            catch
+            {
+                return "Купить б Число или Купить о Число";
+            }
+
+            int num = Convert.ToInt16(Params[2]);
             string result = "";
             switch (Char.ToLower(message.text[8]))
             {
                 case 'о':
-                    weapons = db.WeaponRepository.GetByID(index);
+                    weapons = db.WeaponRepository.GetByID(Params[3]);
                     if (_gs.money >= weapons.cost)
                     {
 
-                        _gs.weaponId = index;
+                        _gs.weaponId = num;
                         _gs.money -= weapons.cost;
                         result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id)}]  купил(a) {weapons.name} за {weapons.cost}G";
                     }
@@ -540,11 +554,11 @@ namespace VkServices
 
 
                 case 'б':
-                    armors = db.ArmorRepository.GetByID(index);
+                    armors = db.ArmorRepository.GetByID(num);
                     if (_gs.money >= armors.cost)
                     {
 
-                        _gs.armorId = index;
+                        _gs.armorId = num;
                         _gs.money -= armors.cost;
                         result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id)}]  купил(a) {armors.name} за {armors.cost}G";
                     }
