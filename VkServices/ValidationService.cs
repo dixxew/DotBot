@@ -18,9 +18,9 @@ namespace VkServices
         private DbRepository db = new DbRepository();
         
 
-        public void Main(Updates updates)
+        public Task Main(Updates updates)
         {
-            if (updates.Object.message.from_id < 0) { return; }
+            if (updates.Object.message.from_id < 0) { return Task.CompletedTask; }
 
             Message message = updates.Object.message;
             CheckUser(message.from_id);
@@ -33,6 +33,7 @@ namespace VkServices
                 }
             }
             CheckMessage(message);
+            return Task.CompletedTask;
         }
 
         void CheckUser(int fromId)

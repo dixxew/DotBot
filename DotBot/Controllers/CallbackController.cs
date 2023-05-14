@@ -35,7 +35,7 @@ namespace DotBot.Controllers
 
         //сюда обращается Vk Callback
         [HttpPost]
-        public IActionResult Callback([FromBody] Updates updates)
+        public async Task<IActionResult> Callback([FromBody] Updates updates)
         {
            ValidationService validationService = new ValidationService();
 
@@ -47,7 +47,7 @@ namespace DotBot.Controllers
                     // Отправляем строку для подтверждения 
                     return Ok(_configuration["Config:Confirmation"]);
                 default:
-                    validationService.Main(updates);                    
+                     await validationService.Main(updates);                    
                     break;
             }
 
