@@ -96,7 +96,7 @@ namespace VkServices
 
         public string webLink(Message message)
         {
-            string url = configuration["Config:webUrl"];
+            string url = configuration["Config:WebUrl"];
             return url;
         }
 
