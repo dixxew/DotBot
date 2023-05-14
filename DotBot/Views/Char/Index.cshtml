@@ -1,0 +1,71 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using DotBot.Controllers
+@model charModel
+
+@if (!Model.isEmpty)
+{
+
+    <table class="iksweb">
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td><img src="@Model.avatar" /></td>
+                                </tr>
+                                <tr>
+                                    <td>@Model.name</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Уровень:</td>
+                                    <td>@Model.lvl</td>
+                                </tr>
+                                <tr>
+                                    <td>Опыт:</td>
+                                    <td>@Model.exp / @Model.expToUp</td>
+                                </tr>
+                                <tr>
+                                    <td>Здоровье:</td>
+                                    <td>@Model.hp / @Model.maxHp</td>
+                                </tr>
+                                <tr>
+                                    <td>Сила:</td>
+                                    <td>@Model.power +(@Model.weaponPower)</td>
+                                </tr>
+                                <tr>
+                                    <td>Защита:</td>
+                                    <td>@Model.defence +(@Model.armorPower)</td>
+                                </tr>
+                            <tr>
+                                <td>Очки уровней:</td>
+                                <td>@Model.lvlPoints</td>
+                            </tr>
+                            <tr>
+                                <td>Убийств:</td>
+                                <td>@Model.kills</td>
+                            </tr>
+                                <tr>
+                                    <td>GOLD:</td>
+                                    <td>@Model.money</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </table>
+
+}
+else
+{
+    
+}
