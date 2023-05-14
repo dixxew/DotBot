@@ -11,6 +11,7 @@ namespace VkServices
         private static KeyValuePair<string, Func<Message, string>> divorce = new KeyValuePair<string, Func<Message, string>>("развод", new ContentService().divorce);
         private static KeyValuePair<string, Func<Message, string>> showStats = new KeyValuePair<string, Func<Message, string>>("статы", new ContentService().showStats);
         private static KeyValuePair<string, Func<Message, string>> kick = new KeyValuePair<string, Func<Message, string>>("ударить", new ContentService().kick);
+        private static KeyValuePair<string, Func<Message, string>> useLvlPoints = new KeyValuePair<string, Func<Message, string>>("повысить", new ContentService().useLvlPoints);
         private static KeyValuePair<string, Func<Message, string>> showShop = new KeyValuePair<string, Func<Message, string>>("магазин", new ContentService().showShop);
         private static KeyValuePair<string, Func<Message, string>> buyEquip = new KeyValuePair<string, Func<Message, string>>("купить", new ContentService().buyEquip);
         private static KeyValuePair<string, Func<Message, string>> gpt = new KeyValuePair<string, Func<Message, string>>("gpt", new ContentService().gptCaller);
@@ -25,6 +26,7 @@ namespace VkServices
             divorce,
             showStats,
             kick,
+            useLvlPoints,
             showShop,
             buyEquip,
             gpt

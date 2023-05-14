@@ -62,14 +62,14 @@ namespace VkServices
             try
             {
                 string[] NameParam = message.text.Split(' ', 2);
-                result = VkMethodsDict.funcDict[NameParam[0]].Invoke(message);
+                result = VkMethodsDict.funcDict[NameParam[0].ToLower()].Invoke(message);
 
             }
             catch
             {
                 if (VkMethodsDict.funcDict.ContainsKey(message.text))
                 {
-                    result = VkMethodsDict.funcDict[message.text].Invoke(message);
+                    result = VkMethodsDict.funcDict[message.text.ToLower()].Invoke(message);
                 }
             }
             db.Dispose();

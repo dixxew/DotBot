@@ -240,7 +240,7 @@ namespace VkServices
 
         public string kick(Message message)
         {
-            StringBuilder result = new StringBuilder(".");
+            StringBuilder result = new StringBuilder("");
             GameStat _gs1 = db.GameStatRepository.GetByID(message.from_id);
             GameStat _gs2 = db.GameStatRepository.GetByID(message.reply_message.from_id);
             User user1 = db.UserRepository.GetByID(message.from_id);
@@ -314,7 +314,7 @@ namespace VkServices
                     }
                     else
                     {
-                        result.Append($"HP:{_gs2.hp}\n");
+                        result.Append($"\nHP:{_gs2.hp}\n");
                     }
                 }
                 else
