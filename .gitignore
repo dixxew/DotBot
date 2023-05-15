@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /DotBot/appsettings.json
+/VkServices/ContentService.cs
+/VkServices/ValidationService.cs
+/VkServices/VkServices.csproj
