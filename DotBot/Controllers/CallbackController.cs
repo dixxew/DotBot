@@ -1,10 +1,7 @@
 ﻿using DotBot.Data;
 using DotBot.Models;
+using DotBot.Services.Vk;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection;
-using VkNet;
-using VkNet.Model;
-using VkServices;
 
 
 namespace DotBot.Controllers
@@ -37,7 +34,6 @@ namespace DotBot.Controllers
         [HttpPost]
         public async Task<IActionResult> Callback([FromBody] Updates updates)
         {
-           ValidationService validationService = new ValidationService();
 
             // Проверяем, что находится в поле "type" 
             switch (updates.Type)
@@ -47,13 +43,20 @@ namespace DotBot.Controllers
                     // Отправляем строку для подтверждения 
                     return Ok(_configuration["Config:Confirmation"]);
                 default:
-                     await validationService.Main(updates);                    
+                     await doServices(updates);                    
                     break;
             }
 
             // Возвращаем "ok" серверу Callback API        
             return Ok("ok");
             
+        }
+
+        public Task doServices(Updates updates)
+        {
+            ValidationService validationService = new ValidationService();
+            validationService.Main(updates);
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace DotBot.DLA
+namespace DotBot.DAL
 {
     public interface IGenericRepository<TEntity> where TEntity : class
     {
