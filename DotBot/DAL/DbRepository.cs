@@ -1,10 +1,8 @@
 ﻿using DotBot.Data;
-using DotBot.DLA;
-
 using DotBot.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DotBot.DLA
+namespace DotBot.DAL
 {
     public class DbRepository: IDisposable
     {
