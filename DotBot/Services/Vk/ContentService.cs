@@ -643,7 +643,7 @@ namespace DotBot.Services.Vk
         #region ApiServices
 
 
-
+        //weather.api
         public async Task<string> weather(Message message)
         {
             string[] NameParam;
