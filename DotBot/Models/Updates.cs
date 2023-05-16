@@ -1,5 +1,8 @@
-﻿using System.Text.Json.Nodes;
+﻿using System;
+using System.Text.Json.Nodes;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using VkNet.Model;
 
 namespace DotBot.Models
 {

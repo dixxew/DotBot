@@ -1,8 +1,18 @@
-﻿using DotBot.DAL;
-using DotBot.Models;
+﻿using System.Reflection;
+using DotBot.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using AspNet.Security.OAuth.Vkontakte;
+using DotBot.Controllers;
+using DotBot.DLA;
+using DotBot.Models;
+using Microsoft.CodeAnalysis;
 using VkNet;
 using VkNet.Model;
+using VkNet.Model.RequestParams;
 using User = DotBot.Models.User;
 
 namespace DotBot.Controllers

@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using DotBot.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace DotBot.DAL
+namespace DotBot.DLA
 {
     public class GenericRepository<TEntity> where TEntity : class
     {
