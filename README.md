@@ -24,5 +24,5 @@ GPT chat works in single message mode (without dialog)
 ## Links
 
  - [Vk Path](https://vk.com/public218552053)
- - [Deployed Project](https://a17611-378c.a.d-f.pw/)
+ - [Deployed Project](https://a17660-bc6d.k.d-f.pw/)
  
