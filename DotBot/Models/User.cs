@@ -8,7 +8,6 @@ namespace DotBot.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Nickname { get; set; }
-        public bool IsAdmin { get; set; }
         public int Marry { get; set; }
         public int MarryageRequest { get; set; }
 
@@ -16,20 +15,21 @@ namespace DotBot.Models
     public class GameStat 
     {
         public int Id { get; set; }
-        public int lvl { get; set; }
-        public int exp { get; set; }
-        public int expToUp { get; set; }
-        public int hp { get; set; }
-        public int maxHp { get; set; }
-        public int power { get; set; }
-        public int defence { get; set; }
-        public int kills { get; set; }
-        public int damageSum { get; set; }
-        public int lvlPoints { get; set; }
-        public bool isHealing { get; set; }
-        public int money { get; set; }
-        public int armorId { get; set; }
-        public int weaponId { get; set; }
+        public User User { get; set; }
+        public int Level { get; set; }
+        public int Exp { get; set; }
+        public int ExpToUp { get; set; }
+        public int Hp { get; set; }
+        public int MaxHp { get; set; }
+        public int Power { get; set; }
+        public int Defence { get; set; }
+        public int Kills { get; set; }
+        public int DamageSum { get; set; }
+        public int LevelPoints { get; set; }
+        public bool IsHealing { get; set; }
+        public int Money { get; set; }
+        public Armor Armor { get; set; }
+        public Weapon Weapon { get; set; }
 
     }
 
