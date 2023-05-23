@@ -1,21 +1,10 @@
-﻿using System.Collections;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using DotBot.DAL;
 using DotBot.Models;
-using DotBot.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using VkNet;
-using VkNet.Model.Attachments;
-using VkNet.Model;
-using Microsoft.Data.SqlClient;
-using System.Data;
-using DotBot.DAL;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Data;
 using Object = System.Object;
-using User = DotBot.Models.User;
 
 namespace DotBot.Controllers
 {
