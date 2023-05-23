@@ -17,11 +17,7 @@ namespace DotBot.Controllers
            
         }
 
-        public IActionResult Index()
-        {
-         
-            return View();
-        }
+        
         [HttpGet]
         [EnableCors]
         public Object data()

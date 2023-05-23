@@ -66,7 +66,6 @@ app.UseCookiePolicy(new CookiePolicyOptions()
 app.UseStaticFiles();
 
 app.UseRouting();
-//app.UseVkontakteAuthentication("{AppId}", "{AppSecret}", "{PERMISSIONS}");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -76,7 +75,6 @@ app.UseCors(builder => builder.AllowAnyOrigin());
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapDefaultControllerRoute();
