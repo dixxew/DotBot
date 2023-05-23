@@ -32,7 +32,7 @@ namespace DotBot.Controllers
 
         //сюда обращается Vk Callback
         [HttpPost]
-        public async Task<IActionResult> Callback([FromBody] Updates updates)
+        public IActionResult Callback([FromBody] Updates updates)
         {
 
             // Проверяем, что находится в поле "type" 
@@ -43,20 +43,17 @@ namespace DotBot.Controllers
                     // Отправляем строку для подтверждения 
                     return Ok(_configuration["Config:Confirmation"]);
                 default:
-                     await doServices(updates);                    
+                    Task.Run(async () =>
+                    {
+                        ValidationService validationService = new ValidationService();
+                        validationService.Main(updates);
+                    });                    
                     break;
             }
 
             // Возвращаем "ok" серверу Callback API        
             return Ok("ok");
             
-        }
-
-        public Task doServices(Updates updates)
-        {
-            ValidationService validationService = new ValidationService();
-            validationService.Main(updates);
-            return Task.CompletedTask;
         }
     }
 }
