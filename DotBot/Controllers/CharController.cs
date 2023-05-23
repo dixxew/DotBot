@@ -1,100 +1,95 @@
 ﻿using DotBot.DAL;
 using DotBot.Models;
+using DotBot.Services.Vk;
+using HtmlAgilityPack;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using VkNet;
 using VkNet.Model;
+using Object = System.Object;
 using User = DotBot.Models.User;
 
 namespace DotBot.Controllers
-
-
 {
     public class CharController : Controller
     {
-        private readonly IConfiguration _configuration;
         private DbRepository db = new DbRepository();
         private VkApi api = new VkApi();
-        public CharController(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
         IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
-		// GET: CharController
-
-		//[Authorize]
-		public IActionResult Index()
+        public CharController()
         {
-	        if (!api.IsAuthorized)
-	        {
-		        api.Authorize(new ApiAuthParams
-		        {
-			        AccessToken = configuration["Config:AccessToken"]
-		        });
-	        }
-			charModel cm = new charModel();
+            
+        }
+
+        // GET: CharController
+
+        [HttpGet]
+        [EnableCors]
+        //[Authorize]
+        public Object data([FromQuery] int id)
+        {
+            if (!api.IsAuthorized)
+            {
+                api.Authorize(new ApiAuthParams
+                {
+                    AccessToken = configuration["Config:AccessToken"]
+                });
+            }
+
             GameStat gs;
-            User user;
-            Armor armor;
-            Weapon weapon;
-            int id = 346320821;
-            //int id = Convert.ToInt32(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);
             try
             {
-                gs = db.GameStatRepository.GetByID(id);
-                user = db.UserRepository.GetByID(id);
-                armor = db.ArmorRepository.GetByID(gs.armorId);
-                weapon = db.WeaponRepository.GetByID(gs.weaponId);
+                gs = db.GameStatRepository.Get(x => x.Id == id, null, "User,Armor,Weapon").First();
+
             }
             catch
             {
-                cm.isEmpty = true;
-                return View(cm);
+                ValidationService vs = new ValidationService();
+                vs.CreateUser(id);
+                gs = db.GameStatRepository.Get(x => x.Id == id, null, "User,Armor,Weapon").First();
             }
-            var vkInfo = api.Users.Get(new long[] { id }, VkNet.Enums.Filters.ProfileFields.PhotoMax).FirstOrDefault();
 
-            cm.isEmpty = false;
-            cm.name = user.Nickname;
-            cm.avatar = vkInfo.PhotoMax;
+            Char data = new Char();
 
-            cm.lvl = gs.lvl;
-            cm.exp = gs.exp;
-            cm.expToUp = gs.expToUp;
-            cm.hp = gs.hp;
-            cm.maxHp = gs.maxHp;
-            cm.power = gs.power;
-            cm.weaponPower = weapon.damage;
-            cm.defence = gs.defence;
-            cm.armorPower = armor.protect;
-            cm.lvlPoints = gs.lvlPoints;
-            cm.money = gs.money;
+            data.Name = gs.User.Nickname;
+            data.AvatarUrl = api.Users.Get(new long[] { id }, VkNet.Enums.Filters.ProfileFields.PhotoMax).FirstOrDefault().PhotoMax;
 
+            data.Level = gs.Level.ToString();
+            data.LevelPoints = gs.LevelPoints.ToString();
 
-            return View(cm);
+            data.Exp = gs.Exp.ToString();
+            data.MaxExp = gs.ExpToUp.ToString();
+
+            data.Kills = gs.Kills.ToString();
+            data.Money = gs.Money.ToString();
+
+            data.Defence = gs.Defence.ToString();
+            data.Power = gs.Power.ToString();
+
+            data.ArmorDefence = gs.Armor.protect.ToString();
+            data.WeaponPower = gs.Weapon.damage.ToString();
+
+            return JsonConvert.SerializeObject(data);
         }
-
-        
-
-
     }
-    public class charModel
+
+    public class Char
     {
-        public bool isEmpty { get; set; }
-        public string name { get; set; }
-        public Uri avatar { get; set; }
-        public int lvl { get; set; }
-        public int exp { get; set; }
-        public int expToUp { get; set; }
-        public int hp { get; set; }
-        public int maxHp { get; set; }
-        public int power { get; set; }
-        public int weaponPower { get; set; }
-        public int defence { get; set; }
-        public int armorPower { get; set; }
-        public int lvlPoints { get; set; }
-        public int money { get; set;}
-        public int kills { get;}
+        public string Name { get; set; }
+        public Uri AvatarUrl { get; set; }
+        public string Level { get; set; }
+        public string Kills { get; set; }
+        public string Exp { get; set; }
+        public string MaxExp { get; set; }
+        public string LevelPoints { get; set; }
+        public string Power { get; set; }
+        public string WeaponPower { get; set; }
+        public string Defence { get; set; }
+        public string ArmorDefence { get; set;}
+        public string Money { get; set; }
 
     }
-
 }
+
+
