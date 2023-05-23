@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -24,8 +23,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 
 
 
-builder.Services.AddControllersWithViews();
-
+builder.Services.AddControllers();
 builder.Services.AddDbContext<vkContext>(
     options => options.UseSqlServer("name=ConnectionStrings:DefaultConnection", o => o.EnableRetryOnFailure())
     ); ;
@@ -43,7 +41,7 @@ builder.Services.AddAuthentication(VkontakteAuthenticationDefaults.Authenticatio
 
 
 
-
+builder.Services.AddCors();
 
 
 var app = builder.Build();
@@ -52,7 +50,6 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
-
 }
 else
 {
@@ -73,7 +70,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseCors(builder => builder.AllowAnyOrigin());
 
 
 app.MapControllerRoute(
