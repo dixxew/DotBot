@@ -1,6 +1,7 @@
 ﻿using DotBot.DAL;
 using DotBot.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using VkNet;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
@@ -14,9 +15,13 @@ namespace DotBot.Services.Vk
         private ContentService content;
         VkApi api = new VkApi();
         IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        private DbRepository db;
 
-        private DbRepository db = new DbRepository();
 
+        public ValidationService()
+        {
+            this.db = new DbRepository();
+        }
 
         public void Main(Updates updates)
         {
@@ -26,7 +31,6 @@ namespace DotBot.Services.Vk
             CheckUser(message.from_id);
             if (message.reply_message != null)
             {
-
                 if (updates.Object.message.from_id! < 0)
                 {
                     CheckUser(message.reply_message.from_id);
@@ -44,7 +48,7 @@ namespace DotBot.Services.Vk
             /// таблица для конфы
 
             content = new ContentService();
-            User? user = db.UserRepository.GetByID(fromId);
+            GameStat? user = db.GameStatRepository.GetByID(fromId);
             if (user == null)
             {
                 content.CreateUser(fromId);

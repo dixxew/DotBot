@@ -28,7 +28,7 @@ namespace DotBot.Services.Vk
         public void MessageHandler(int id)
         {
             var userGameStats = db.GameStatRepository.GetByID(id);
-            userGameStats.exp++;
+            userGameStats.Exp++;
             UserLevelUp(id);
             db.GameStatRepository.Update(userGameStats);
             db.Save();
@@ -37,13 +37,13 @@ namespace DotBot.Services.Vk
         private void UserLevelUp(int id)
         {
             var _gs = db.GameStatRepository.GetByID(id);
-            if (_gs.exp >= _gs.expToUp)
+            if (_gs.Exp >= _gs.ExpToUp)
             {
-                _gs.lvl++;
-                _gs.lvlPoints++;
-                _gs.maxHp = 8 * _gs.lvl;
-                _gs.hp = _gs.maxHp;
-                _gs.expToUp = _gs.expToUp + 10 * _gs.lvl;
+                _gs.Level++;
+                _gs.LevelPoints++;
+                _gs.MaxHp = 8 * _gs.Level;
+                _gs.Hp = _gs.MaxHp;
+                _gs.ExpToUp = _gs.ExpToUp + 10 * _gs.Level;
             }
             db.GameStatRepository.Update(_gs);
             db.Save();
@@ -58,33 +58,34 @@ namespace DotBot.Services.Vk
                 });
             }
             var firtLastNames = api.Users.Get(new long[] { id }).FirstOrDefault();
+            User user = new User()
+            {
+                Name = $"{firtLastNames.FirstName} {firtLastNames.LastName}",
+                Nickname = $"{firtLastNames.FirstName} {firtLastNames.LastName}",
+                Marry = 0,
+                MarryageRequest = 0
+            };
+            db.UserRepository.Insert(user);
+            db.Save();
             GameStat gs = new GameStat()
             {
                 Id = id,
-                lvl = 1,
-                exp = 0,
-                expToUp = 10,
-                hp = 10,
-                maxHp = 10,
-                power = 0,
-                defence = 0,
-                lvlPoints = 0,
-                isHealing = false,
-                kills = 0,
-                weaponId = 1,
-                armorId = 1,
+                Level = 1,
+                Exp = 0,
+                ExpToUp = 10,
+                Hp = 10,
+                MaxHp = 10,
+                Power = 0,
+                Defence = 0,
+                LevelPoints = 0,
+                IsHealing = false,
+                Kills = 0,
+                Weapon = db.WeaponRepository.GetByID(1),
+                Armor = db.ArmorRepository.GetByID(1),
+                User = user
             };
-
-            User user = new User()
-            {
-                Id = id,
-                Name = $"{firtLastNames.FirstName} {firtLastNames.LastName}",
-                Nickname = $"{firtLastNames.FirstName} {firtLastNames.LastName}",
-                IsAdmin = false,
-            };
+            
             db.GameStatRepository.Insert(gs);
-            db.Save();
-            db.UserRepository.Insert(user);
             db.Save();
 
         }
@@ -102,7 +103,7 @@ namespace DotBot.Services.Vk
 
         public string changeNickaname(Message message)
         {
-            var user = db.UserRepository.GetByID(message.from_id);
+            var user = db.GameStatRepository.Get(x => x.Id==message.from_id,null,"User").First().User;
             string nickname = message.text.Split(' ', 2)[1];
             user.Nickname = nickname;
             db.UserRepository.Update(user);
@@ -133,8 +134,8 @@ namespace DotBot.Services.Vk
             try
             {
                 string[] requString = message.text.Split(' ', 2);
-                var user1 = db.UserRepository.GetByID(message.from_id);
-                var user2 = db.UserRepository.GetByID(user1.MarryageRequest);
+                var user1 = db.GameStatRepository.Get(x => x.Id == message.from_id, null, "User").First().User;
+                var user2 = db.GameStatRepository.Get(x => x.Id == user1.MarryageRequest, null, "User").First().User;
                 string result = "If you somehow stumbled upon this text, know that you are cool and found my Easter egg";
                 switch (requString[1].ToLower())
                 {
@@ -158,10 +159,10 @@ namespace DotBot.Services.Vk
             }
             catch
             {
-                var requester = db.UserRepository.GetByID(message.from_id);
-                var requesterMarryId = db.UserRepository.GetByID(message.from_id).Marry;
-                var target = db.UserRepository.GetByID(message.reply_message.from_id);
-                var targetMarryId = db.UserRepository.GetByID(message.reply_message.from_id).Marry;
+                var requester = db.GameStatRepository.Get(x => x.Id == message.from_id, null, "User").First().User;
+                var requesterMarryId = db.GameStatRepository.Get(x => x.Id == message.from_id, null, "User").First().User.Marry;
+                var target = db.GameStatRepository.Get(x => x.Id == message.reply_message.from_id, null, "User").First().User;
+                var targetMarryId = db.GameStatRepository.Get(x => x.Id == message.reply_message.from_id, null, "User").First().User.Marry;
                 string result;
                 if (requesterMarryId == 0)
                 {
@@ -192,8 +193,8 @@ namespace DotBot.Services.Vk
         public string divorce(Message message)
         {
 
-            var user1 = db.UserRepository.GetByID(message.from_id);
-            var user2 = db.UserRepository.GetByID(user1.Marry);
+            var user1 = db.GameStatRepository.Get(x => x.Id == message.from_id, null, "User").First().User;
+            var user2 = db.GameStatRepository.Get(x => x.Id == user1.Marry, null, "User").First().User;
             string result = "";
             if (user1.Marry != 0)
             {
@@ -216,43 +217,35 @@ namespace DotBot.Services.Vk
 
         public string showStats(Message message)
         {
-            GameStat gs = db.GameStatRepository.GetByID(message.from_id);
-            User user = db.UserRepository.GetByID(message.from_id);
-            Weapon weap = db.WeaponRepository.GetByID(gs.weaponId);
-            Armor armor = db.ArmorRepository.GetByID(gs.armorId);
+            GameStat gs = db.GameStatRepository.Get(x => x.Id == message.from_id, null, "User,Weapon,Armor").First();
 
-            var result = $@"[id{message.from_id}|{user.Nickname}]
+            var result = $@"[id{message.from_id}|{gs.User.Nickname}]
             ---
-            GOLD: {gs.money}
-            Kills: {gs.kills}
-            Уровень: {gs.lvl}
-            Хп: {gs.hp}
-            Сила: {gs.power}(+{weap.damage})
-            Защита: {gs.defence}(+{armor.protect})
-            Очки: {gs.lvlPoints}
+            GOLD: {gs.Money}
+            Kills: {gs.Kills}
+            Уровень: {gs.Level}
+            Хп: {gs.Hp}
+            Сила: {gs.Power}(+{gs.Weapon.damage})
+            Защита: {gs.Defence}(+{gs.Armor.protect})
+            Очки: {gs.LevelPoints}
             ---
-            Оружие - {weap.name}
-            Броня - {armor.name}
+            Оружие - {gs.Weapon.name}
+            Броня - {gs.Armor.name}
             ---
-            До следующего уровня {gs.expToUp - gs.exp} опыта";
+            До следующего уровня {gs.ExpToUp - gs.Exp} опыта";
             return result;
         }
 
         public string kick(Message message)
         {
             StringBuilder result = new StringBuilder("");
-            GameStat _gs1 = db.GameStatRepository.GetByID(message.from_id);
-            GameStat _gs2 = db.GameStatRepository.GetByID(message.reply_message.from_id);
-            User user1 = db.UserRepository.GetByID(message.from_id);
-            User user2 = db.UserRepository.GetByID(message.reply_message.from_id);
-            Weapon weapon1 = db.WeaponRepository.GetByID(_gs1.weaponId);
-            Weapon weapon2 = db.WeaponRepository.GetByID(_gs2.weaponId);
-            Armor armor1 = db.ArmorRepository.GetByID(_gs1.armorId);
-            Armor armor2 = db.ArmorRepository.GetByID(_gs2.armorId);
-            int power1 = _gs1.power + weapon1.damage;
-            int power2 = _gs2.power + weapon2.damage;
-            int defence1 = _gs1.defence + armor1.protect;
-            int defence2 = _gs2.defence + armor2.protect;
+            GameStat _gs1 = db.GameStatRepository.Get(x => x.Id == message.from_id, null, "User,Armor,Weapon").First();
+            GameStat _gs2 = db.GameStatRepository.Get(x => x.Id == message.reply_message.from_id, null, "User,Armor,Weapon").First();
+            
+            int power1 = _gs1.Power + _gs1.Weapon.damage;
+            int power2 = _gs2.Power + _gs2.Weapon.damage;
+            int defence1 = _gs1.Defence + _gs1.Armor.protect;
+            int defence2 = _gs2.Defence + _gs2.Armor.protect;
 
 
             if (_gs1.Id == _gs2.Id)
@@ -261,75 +254,75 @@ namespace DotBot.Services.Vk
             }
 
             //пользователь жив?
-            if (_gs2.hp > 0)
+            if (_gs2.Hp > 0)
             {
                 //хватает ли сил ударить?
                 if (defence2 < power1)
                 {
-                    _gs2.hp -= power1 - defence2;
-                    _gs1.damageSum += power1 - defence2;
-                    result.Append(@$"[id{user1.Id}|{user1.Nickname}] ударил(а) [id{user2.Id}|{user2.Nickname}]
+                    _gs2.Hp -= power1 - defence2;
+                    _gs1.DamageSum += power1 - defence2;
+                    result.Append(@$"[id{_gs1.Id}|{_gs1.User.Nickname}] ударил(а) [id{_gs2.Id}|{_gs2.User.Nickname}]
                     - {power1 - defence2} HP");
 
                     //убил?
-                    if (_gs2.hp <= 0)
+                    if (_gs2.Hp <= 0)
                     {
-                        _gs2.hp = 0;
-                        result.Append($"\n[id{user2.Id}|{user2.Nickname}] мертв(а)\n");
-                        double exp1Temp = _gs1.expToUp;
-                        double exp2Temp = _gs2.expToUp;
+                        _gs2.Hp = 0;
+                        result.Append($"\n[id{_gs2.Id}|{_gs2.User.Nickname}] мертв(а)\n");
+                        double exp1Temp = _gs1.ExpToUp;
+                        double exp2Temp = _gs2.ExpToUp;
                         //начисление опыта взависимости от разницы уровней
                         int loot;
-                        switch (_gs2.lvl - _gs1.lvl)
+                        switch (_gs2.Level - _gs1.Level)
                         {
                             case < 0:
                                 break;
                             case < 5:
                                 loot = Convert.ToInt32((exp2Temp - exp1Temp) / 3);
-                                _gs1.exp += loot;
+                                _gs1.Exp += loot;
                                 result.Append($"+{loot} EXP &#10055; | ");
                                 break;
                             case < 20:
                                 loot = Convert.ToInt32((exp2Temp - exp1Temp) / 4);
-                                _gs1.exp += loot;
+                                _gs1.Exp += loot;
                                 result.Append($"+{loot} EXP &#10055; | ");
                                 break;
                             case < 50:
                                 loot = Convert.ToInt32((exp2Temp - exp1Temp) / 6);
-                                _gs1.exp += loot;
+                                _gs1.Exp += loot;
                                 result.Append($"+{loot} EXP &#10055; | ");
                                 break;
                             case < 100:
                                 loot = Convert.ToInt32((exp2Temp - exp1Temp) / 10);
-                                _gs1.exp += loot;
+                                _gs1.Exp += loot;
                                 result.Append($"+{loot} EXP &#10055; | ");
                                 break;
                         }
 
                         //начисление золота
                         result.Append($"&#128176; +{giveMoney(_gs1, _gs2)}G");
-                        _gs1.kills++;
+                        _gs1.Kills++;
                         UserLevelUp(message.from_id);
 
                     }
                     else
                     {
-                        result.Append($"\nHP:{_gs2.hp}\n");
+                        result.Append($"\nHP:{_gs2.Hp}\n");
                     }
                 }
                 else
                 {
-                    result.Append($"[id{user1.Id}|{user1.Nickname}] ты слаб(а)");
+                    result.Append($"[id{_gs1.Id} | {_gs1.User.Nickname}] ты слаб(а)");
                 }
             }
             else
             {
-                _gs2.hp = 0;
-                result.Append($"[id{user2.Id}|{user2.Nickname}] уничтожен(а)");
+                _gs2.Hp = 0;
+                result.Append($"[id{_gs2.Id} | {_gs2.User.Nickname}] уничтожен(а)");
 
             }
 
-            if (!_gs2.isHealing)
+            if (!_gs2.IsHealing)
             {
                 healing(message.reply_message.from_id);
             }
@@ -347,36 +340,36 @@ namespace DotBot.Services.Vk
             Random rnd = new Random();
             int soooo;
             //начисление денег за убийство в зависимости от уровня пользователя
-            switch (_gs2.lvl)
+            switch (_gs2.Level)
             {
                 case < 10:
                     soooo = rnd.Next(1, 5);
-                    _gs.money += soooo;
+                    _gs.Money += soooo;
                     return soooo.ToString();
                     break;
                 case < 20:
                     soooo = rnd.Next(50, 100);
-                    _gs.money += soooo;
+                    _gs.Money += soooo;
                     return soooo.ToString();
                     break;
                 case < 40:
                     soooo = rnd.Next(1000, 5000);
-                    _gs.money += soooo;
+                    _gs.Money += soooo;
                     return soooo.ToString();
                     break;
                 case < 60:
                     soooo = rnd.Next(20000, 100000);
-                    _gs.money += soooo;
+                    _gs.Money += soooo;
                     return soooo.ToString();
                     break;
                 case < 80:
                     soooo = rnd.Next(500000, 2000000);
-                    _gs.money += soooo;
+                    _gs.Money += soooo;
                     return soooo.ToString();
                     break;
                 default:
                     soooo = rnd.Next(10000000, 50000000);
-                    _gs.money += soooo;
+                    _gs.Money += soooo;
                     return soooo.ToString();
             }
 
@@ -398,66 +391,66 @@ namespace DotBot.Services.Vk
                     parametrs = message.text.Split(' ', 2);
                 }
                 //[Повысить] [c] [7]
-                var _gs = db.GameStatRepository.GetByID(message.from_id);
+                var _gs = db.GameStatRepository.Get(x => x.Id == message.from_id, null, "User").First();
                 string result = "";
 
                 switch (Convert.ToChar(parametrs[1].ToLower()))
                 {
                     case 'с':
-                        if (_gs.lvlPoints > 0)
+                        if (_gs.LevelPoints > 0)
                         {
                             if (upperParam == 0)
                             {
-                                _gs.power++;
-                                _gs.lvlPoints--;
-                                result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id).Nickname}] Сила увеличена на 1";
+                                _gs.Power++;
+                                _gs.LevelPoints--;
+                                result = $"[id{message.from_id}|{_gs.User.Nickname}] Сила увеличена на 1";
                             }
                             else
                             {
-                                if (upperParam <= _gs.lvlPoints)
+                                if (upperParam <= _gs.LevelPoints)
                                 {
-                                    _gs.power += upperParam;
-                                    _gs.lvlPoints -= upperParam;
-                                    result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id).Nickname}] Сила увеличена на {upperParam}";
+                                    _gs.Power += upperParam;
+                                    _gs.LevelPoints -= upperParam;
+                                    result = $"[id{message.from_id}|{_gs.User.Nickname}] Сила увеличена на {upperParam}";
                                 }
                                 else
                                 {
-                                    result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id).Nickname}] нехватает очков";
+                                    result = $"[id{message.from_id}|{_gs.User.Nickname}] нехватает очков";
                                 }
                             }
                         }
                         else
                         {
-                            result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id).Nickname}] нехватает очков";
+                            result = $"[id{message.from_id}|{_gs.User.Nickname}] нехватает очков";
                         }
 
                         break;
                     case 'з':
-                        if (_gs.lvlPoints > 0)
+                        if (_gs.LevelPoints > 0)
                         {
                             if (upperParam == 0)
                             {
-                                _gs.defence++;
-                                _gs.lvlPoints--;
-                                result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id).Nickname}] Защита увеличена на 1";
+                                _gs.Defence++;
+                                _gs.LevelPoints--;
+                                result = $"[id{message.from_id}|{_gs.User.Nickname}] Защита увеличена на 1";
                             }
                             else
                             {
-                                if (upperParam <= _gs.lvlPoints)
+                                if (upperParam <= _gs.LevelPoints)
                                 {
-                                    _gs.defence += upperParam;
-                                    _gs.lvlPoints -= upperParam;
-                                    result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id).Nickname}] Защита увеличена на {upperParam}";
+                                    _gs.Defence += upperParam;
+                                    _gs.LevelPoints -= upperParam;
+                                    result = $"[id{message.from_id}|{_gs.User.Nickname}] Защита увеличена на {upperParam}";
                                 }
                                 else
                                 {
-                                    result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id).Nickname}] нехватает очков";
+                                    result = $"[id{message.from_id}|{_gs.User.Nickname}] нехватает очков";
                                 }
                             }
                         }
                         else
                         {
-                            result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id).Nickname}] нехватает очков";
+                            result = $"[id{message.from_id}|{_gs.User.Nickname}] нехватает очков";
                         }
 
                         break;
@@ -477,14 +470,14 @@ namespace DotBot.Services.Vk
             //отхил запускается после первого удара
             //через минуту здоровье полностью восстановиться
 
-            GameStat _gs = db.GameStatRepository.GetByID(Vk_id);
-            _gs.isHealing = true;
+            GameStat _gs = db.GameStatRepository.Get(x => x.Id == Vk_id, null, "User").First();
+            _gs.IsHealing = true;
             db.GameStatRepository.Update(_gs);
             db.Save();
             await Task.Delay(60000);
 
-            _gs.hp = _gs.maxHp;
-            _gs.isHealing = false;
+            _gs.Hp = _gs.MaxHp;
+            _gs.IsHealing = false;
             db.GameStatRepository.Update(_gs);
             db.Save();
 
@@ -492,7 +485,7 @@ namespace DotBot.Services.Vk
 
         public string showShop(Message message)
         {
-            int goldCount = db.GameStatRepository.GetByID(message.from_id).money;
+            int goldCount = db.GameStatRepository.Get(x => x.Id == message.from_id).First().Money;
             IEnumerable<Weapon> weapons = db.WeaponRepository.Get();
             IEnumerable<Armor> armors = db.ArmorRepository.Get();
             StringBuilder result = new StringBuilder($"GOLD: {goldCount.ToString()}\n----\n");
@@ -519,10 +512,18 @@ namespace DotBot.Services.Vk
 
         public string buyEquip(Message message)
         {
-            GameStat _gs = db.GameStatRepository.GetByID(message.from_id);
-            Weapon weapons;
-            Armor armors;
+            GameStat _gs = db.GameStatRepository.Get(x => x.Id == message.from_id, null, "User").First();
+            List<Armor> armors = db.ArmorRepository.Get().ToList();
+            List<Weapon> weapons = db.WeaponRepository.Get().ToList();
+
             string[] Params;
+
+            /// Парсинг на:
+            /// 0 - [Купить]
+            /// 1 - [о/б] Оружие или Броня
+            /// 2 - [number] номер в списке
+            ///
+            /// Любое несоответствие - catch
             try
             {
                 Params = message.text.Split(' ', 3);
@@ -532,18 +533,18 @@ namespace DotBot.Services.Vk
                 return "Купить б Число или Купить о Число";
             }
 
-            int num = Convert.ToInt16(Params[2]);
+            // номер айтема
+            int num = Convert.ToInt16(Params[2]); 
             string result = "";
-            switch (char.ToLower(message.text[8]))
+            switch (Params[1])
             {
-                case 'о':
-                    weapons = db.WeaponRepository.GetByID(Params[3]);
-                    if (_gs.money >= weapons.cost)
+                case "о":
+                    if (_gs.Money >= weapons[num].cost)
                     {
 
-                        _gs.weaponId = num;
-                        _gs.money -= weapons.cost;
-                        result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id)}]  купил(a) {weapons.name} за {weapons.cost}G";
+                        _gs.Weapon = weapons[num];
+                        _gs.Money -= weapons[num].cost;
+                        result = $"[id{message.from_id}|{_gs.User.Nickname}]  купил(a) {weapons[num].name} за {weapons[num].cost}G";
                     }
                     else
                     {
@@ -551,16 +552,13 @@ namespace DotBot.Services.Vk
                     }
 
                     break;
-
-
-                case 'б':
-                    armors = db.ArmorRepository.GetByID(num);
-                    if (_gs.money >= armors.cost)
+                case "б":
+                    if (_gs.Money >= armors[num].cost)
                     {
 
-                        _gs.armorId = num;
-                        _gs.money -= armors.cost;
-                        result = $"[id{message.from_id}|{db.UserRepository.GetByID(message.from_id)}]  купил(a) {armors.name} за {armors.cost}G";
+                        _gs.Armor = armors[num];
+                        _gs.Money -= armors[num].cost;
+                        result = $"[id{message.from_id}|{_gs.User.Nickname}]  купил(a) {armors[num].name} за {armors[num].cost}G";
                     }
                     else
                     {
@@ -640,8 +638,8 @@ namespace DotBot.Services.Vk
 
         #endregion
 
-        #region ApiServices
 
+        #region ApiServices
 
         //weather.api
         public async Task<string> weather(Message message)
