@@ -41,18 +41,52 @@ namespace DotBot.Services.Vk
 
         void CheckUser(int fromId)
         {
-
-            /// проверка на сообщество
-            /// проверка на наличие юзера в бд
-            /// наличие reply message
-            /// таблица для конфы
-
-            content = new ContentService();
             GameStat? user = db.GameStatRepository.GetByID(fromId);
             if (user == null)
             {
-                content.CreateUser(fromId);
+                CreateUser(fromId);
             }
+        }
+
+        public void CreateUser(int id)
+        {
+            if (!api.IsAuthorized)
+            {
+                api.Authorize(new ApiAuthParams
+                {
+                    AccessToken = configuration["Config:AccessToken"]
+                });
+            }
+            var firtLastNames = api.Users.Get(new long[] { id }).FirstOrDefault();
+            User user = new User()
+            {
+                Name = $"{firtLastNames.FirstName} {firtLastNames.LastName}",
+                Nickname = $"{firtLastNames.FirstName} {firtLastNames.LastName}",
+                Marry = 0,
+                MarryageRequest = 0
+            };
+            db.UserRepository.Insert(user);
+            db.Save();
+            GameStat gs = new GameStat()
+            {
+                Id = id,
+                Level = 1,
+                Exp = 0,
+                ExpToUp = 10,
+                Hp = 10,
+                MaxHp = 10,
+                Power = 0,
+                Defence = 0,
+                LevelPoints = 0,
+                IsHealing = false,
+                Kills = 0,
+                Weapon = db.WeaponRepository.GetByID(1),
+                Armor = db.ArmorRepository.GetByID(1),
+                User = user
+            };
+
+            db.GameStatRepository.Insert(gs);
+            db.Save();
 
         }
 
