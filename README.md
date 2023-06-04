@@ -10,7 +10,7 @@ Chat
 - RP commands (nicknames,kick,stats,shop and so on.)
 - Chat-GPT 3.5  
 - Weather service(only today's data)
-Web
+Web (SPA) (not deployed)
 - Rating
 - Char stats (authorization needed)
 
@@ -25,5 +25,3 @@ GPT chat works in single message mode (without dialog)
 ## Links
 
  - [Vk Path](https://vk.com/public218552053)
- - [Deployed Project](https://a17660-bc6d.k.d-f.pw/)
- 
