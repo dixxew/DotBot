@@ -10,6 +10,7 @@ Chat
 - RP commands (nicknames,kick,stats,shop and so on.)
 - Chat-GPT 3.5  
 - Weather service(only today's data)
+
 Web (SPA) (not deployed)
 - Rating
 - Char stats (authorization needed)
