@@ -9,6 +9,7 @@ Implements some RPG mechanics. Levels, drop experience and gold, item shop, some
 Chat
 - RP commands (nicknames,kick,stats,shop and so on.)
 - Chat-GPT 3.5  
+- Weather service(only today's data)
 Web
 - Rating
 - Char stats (authorization needed)
